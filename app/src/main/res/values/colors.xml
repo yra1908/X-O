@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#02490f</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBar">#197405</color>
+    <color name="backgroundLayout">#02490f</color>
+    <color name="gridFrame">#159f10</color>
+    <color name="crossColor">#3F51B5</color>
+    <color name="zeroColor">#c71b3d</color>
+</resources>
