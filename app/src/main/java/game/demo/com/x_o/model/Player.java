@@ -5,14 +5,10 @@ package game.demo.com.x_o.model;
  */
 public class Player {
 
+    private boolean active;
+
     Player(){
         this.active=false;
-        Type=Type.NONE;
     }
 
-    public enum Type{
-        CROSS, ZERO, NONE
-    }
-
-    private boolean active;
 }

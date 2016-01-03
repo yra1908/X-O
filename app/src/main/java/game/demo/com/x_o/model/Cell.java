@@ -5,13 +5,19 @@ package game.demo.com.x_o.model;
  */
 public class Cell {
 
-    int number;
-    private Player player;
-    boolean active;
+    //int number;
+    private boolean active;
 
-    Cell(int number){
-        this.number=number;
+    public Cell(int number){
+        //this.number=number;
         active=false;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }
