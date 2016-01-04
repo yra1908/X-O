@@ -15,13 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.Random;
 
 import game.demo.com.x_o.model.Cell;
 
-public class SecondActivity extends AppCompatActivity
+public class PlayerVSDroidActivity extends AppCompatActivity
     implements OnClickListener {
 
     private List<Cell> field;
@@ -55,6 +55,9 @@ public class SecondActivity extends AppCompatActivity
 
         status = (TextView) findViewById(R.id.status);
         status.setText("Player1 Move!");
+
+        TextView droid = (TextView) findViewById(R.id.textView2);
+        droid.setText("Droid");
 
         //setting onclick listener to layout
         setListeners();
@@ -121,14 +124,14 @@ public class SecondActivity extends AppCompatActivity
     }
 
     /**
-     * Mane inflater for page
+     * Menu inflater for page
      * @param menu
      * @return true
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        //menu.findItem(R.id.action_1player).setEnabled(false);
+        menu.findItem(R.id.action_1player).setEnabled(false);
         return true;
     }
 
@@ -142,15 +145,11 @@ public class SecondActivity extends AppCompatActivity
 
         switch (item.getItemId()) {
             case R.id.action_exit:
-                Log.d(MainActivity.LOG_TAG, "debug button11");
                 System.exit(0);
                 break;
             case R.id.action_2players:
-                Intent mainActivity = new Intent(this, MainActivity.class);
+                Intent mainActivity = new Intent(this, TwoPlayersActivity.class);
                 startActivity(mainActivity);
-                break;
-            case R.id.action_1player:
-
                 break;
             case R.id.action_about:
                 showPopUpWindow();
@@ -181,7 +180,6 @@ public class SecondActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.newGameButton: //start new Game
-                Log.d(MainActivity.LOG_TAG, "debug button11");
                 setCellGrid();
                 clearGrid();
                 return;
@@ -253,10 +251,13 @@ public class SecondActivity extends AppCompatActivity
         status.setText("Player 1 Move");
 
         imView.setImageResource(resCross);
+        count++;
+
+        Log.d(TwoPlayersActivity.LOG_TAG, "count="+count);
 
         if(checkLines()){
             finishGame();
-            status.setText("Player1 Win!");
+            status.setText("Player 1 Win!");
             return;
         } else if (count==9){
             status.setText("Deuce!");
@@ -264,30 +265,31 @@ public class SecondActivity extends AppCompatActivity
 
             int number;
 
-            Log.d(MainActivity.LOG_TAG, "attack return"+attackStrategy());
-            Log.d(MainActivity.LOG_TAG, "defence return="+defenceStrategy());
+            Log.d(TwoPlayersActivity.LOG_TAG, "attack return"+attackStrategy());
+            Log.d(TwoPlayersActivity.LOG_TAG, "defence return="+defenceStrategy());
 
             if(attackStrategy()!=-1){
                 number = attackStrategy();
-                Log.d(MainActivity.LOG_TAG, "attack="+number);
+                Log.d(TwoPlayersActivity.LOG_TAG, "attack="+number);
             } else if(defenceStrategy()!=-1){
                 number = defenceStrategy();
-                Log.d(MainActivity.LOG_TAG, "defence="+number);
+                Log.d(TwoPlayersActivity.LOG_TAG, "defence="+number);
             } else {
                 number = new Random().nextInt(8);
             }
 
-            Log.d(MainActivity.LOG_TAG, "random="+number);
+            Log.d(TwoPlayersActivity.LOG_TAG, "random="+number);
 
             while (!checkField(number)){
                 number = new Random().nextInt(8);
-                Log.d(MainActivity.LOG_TAG, "random="+number);
+                Log.d(TwoPlayersActivity.LOG_TAG, "random="+number);
             }
-            Log.d(MainActivity.LOG_TAG, "final random="+number);
+            Log.d(TwoPlayersActivity.LOG_TAG, "final random="+number);
             prepareCellDroid(number);
             ImageView imViewDroid=imageList.get(number);
             imViewDroid.setImageResource(resDroid);
             count++;
+            Log.d(TwoPlayersActivity.LOG_TAG, "count="+count);
         }
 
         if(checkLines()){
@@ -301,12 +303,11 @@ public class SecondActivity extends AppCompatActivity
      */
     private void setCellGrid(){
         count=0;
-        status.setText("Player1 Move");
+        status.setText("Player 1 Move");
         field = new ArrayList<>();
-        for (int i=0; i< MainActivity.CELL_AMOUNT; i++) {
+        for (int i=0; i< TwoPlayersActivity.CELL_AMOUNT; i++) {
             field.add(new Cell(i));
         }
-
     }
 
     /**
@@ -328,13 +329,14 @@ public class SecondActivity extends AppCompatActivity
      */
     private boolean checkLines(){
 
-        for (int[] line : MainActivity.lines) {
+        for (int[] line : TwoPlayersActivity.lines) {
 
             if (field.get(line[0]).equals(field.get(line[1])) &&
                     field.get(line[0]).equals(field.get(line[2])) &&
                     !field.get(line[0]).getValue().equals(Cell.Value.NONE)){
                 for (int index: line) {
-                    imageList.get(index).setBackgroundColor(Color.parseColor(MainActivity.CELL_WIN_COLOR));
+                    imageList.get(index).setBackgroundColor(Color
+                            .parseColor(TwoPlayersActivity.CELL_WIN_COLOR));
                 }
                 return true;
             }
@@ -342,61 +344,81 @@ public class SecondActivity extends AppCompatActivity
         return false;
     }
 
+    /**
+     * Defence Strategy
+     * @return int - cell number not to lose
+     */
     private int defenceStrategy(){
 
         int loop=0;
 
-        for (int[] line : MainActivity.lines) {
+        for (int[] line : TwoPlayersActivity.lines) {
+
             if(Cell.Value.CROSS.equals(field.get(line[0]).getValue())){
                 if(Cell.Value.CROSS.equals(field.get(line[1]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][2]);
-                    return MainActivity.lines[loop][2];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][2])){
+                        return TwoPlayersActivity.lines[loop][2];
+                    }
                 }
             }
 
             if(Cell.Value.CROSS.equals(field.get(line[1]).getValue())){
                 if(Cell.Value.CROSS.equals(field.get(line[2]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][0]);
-                    return MainActivity.lines[loop][0];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][0])){
+                        return TwoPlayersActivity.lines[loop][0];
+                    }
                 }
             }
 
             if(Cell.Value.CROSS.equals(field.get(line[0]).getValue())){
                 if(Cell.Value.CROSS.equals(field.get(line[2]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][1]);
-                    return MainActivity.lines[loop][1];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][1])){
+                        return TwoPlayersActivity.lines[loop][1];
+                    }
                 }
             }
             loop++;
         }
-
         return -1;
     }
 
+    /**
+     * Attack Strategy
+     * @return int - cell number to Win
+     */
     private int attackStrategy(){
 
         int loop=0;
 
-        for (int[] line : MainActivity.lines) {
+        for (int[] line : TwoPlayersActivity.lines) {
 
             if(Cell.Value.ZERO.equals(field.get(line[0]).getValue())){
                 if(Cell.Value.ZERO.equals(field.get(line[1]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][2]);
-                    return MainActivity.lines[loop][2];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][2])){
+                        return TwoPlayersActivity.lines[loop][2];
+                    }
                 }
             }
 
             if(Cell.Value.ZERO.equals(field.get(line[1]).getValue())){
                 if(Cell.Value.ZERO.equals(field.get(line[2]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][0]);
-                    return MainActivity.lines[loop][0];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][0])){
+                        return TwoPlayersActivity.lines[loop][0];
+                    }
                 }
             }
 
             if(Cell.Value.ZERO.equals(field.get(line[0]).getValue())){
                 if(Cell.Value.ZERO.equals(field.get(line[2]).getValue())){
-                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][1]);
-                    return MainActivity.lines[loop][1];
+
+                    if(checkField(TwoPlayersActivity.lines[loop][1])){
+                        return TwoPlayersActivity.lines[loop][1];
+                    }
                 }
             }
             loop++;
@@ -422,10 +444,8 @@ public class SecondActivity extends AppCompatActivity
      */
     private boolean checkField(int number){
         if(field.get(number).isActive()){
-            Toast.makeText(this, "Field is already filled", Toast.LENGTH_SHORT).show();
             return false;
         }
-        count++;
         return true;
     }
 
@@ -443,24 +463,21 @@ public class SecondActivity extends AppCompatActivity
      * Show PopUp window with info about application
      */
     private void showPopUpWindow() {
-        Log.d(MainActivity.LOG_TAG, "show popup");
-        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Log.d(TwoPlayersActivity.LOG_TAG, "show popup");
+        LayoutInflater layoutInflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View popupView = layoutInflater.inflate(R.layout.pop_up, null);
+        View popupView = layoutInflater.inflate(R.layout.pop_up,
+                (ViewGroup) findViewById(R.id.pop_up));
 
         popupWindow = new PopupWindow(popupView,
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
 
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-        //popupWindow.showAtLocation
-        // (this.findViewById(R.id.ScrollView01), Gravity.CENTER, 0, 0);
-
-        //popupWindow .setTouchable(true);
-        //popupWindow .setFocusable(true);
 
         Button btnDismiss = (Button)popupView.findViewById(R.id.dismiss);
 
-        btnDismiss.setOnClickListener(new OnClickListener() {
+        btnDismiss.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();

@@ -5,6 +5,10 @@ package game.demo.com.x_o.model;
  */
 public class Cell {
 
+    public enum Value{
+        CROSS, ZERO, NONE
+    }
+
     private boolean active;
     private Value value;
 
@@ -28,10 +32,6 @@ public class Cell {
 
     public void setValue(Value value) {
         this.value = value;
-    }
-
-    public enum Value{
-        CROSS, ZERO, NONE
     }
 
     @Override

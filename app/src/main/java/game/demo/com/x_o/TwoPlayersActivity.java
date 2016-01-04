@@ -29,15 +29,18 @@ import java.util.List;
 
 import game.demo.com.x_o.model.Cell;
 
-public class MainActivity extends AppCompatActivity
+public class TwoPlayersActivity extends AppCompatActivity
     implements OnClickListener {
 
     public static final String LOG_TAG="Log_Debug";
 
     static final String CELL_WIN_COLOR="#3F51B5";
     static final int CELL_AMOUNT=9;
-    static int [][] lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6},
-                                     {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
+
+    static int [][] lines = {{0,1,2}, {3,4,5},
+                             {6,7,8}, {0,3,6},
+                             {1,4,7}, {2,5,8},
+                             {0,4,8}, {2,4,6}};
 
     private boolean player1;
     private List<Cell> field;
@@ -121,23 +124,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Mane inflater for page
+     * Menu inflater for page
      * @param menu
      * @return true
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        //menu.findItem(R.id.action_2players).setEnabled(false);
+        menu.findItem(R.id.action_2players).setEnabled(false);
         return true;
     }
-
-    /*@Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.sort_by_name).setChecked(true);
-        return true;
-    }*/
 
     /**
      * Onlick Listener fot menu items
@@ -149,14 +145,13 @@ public class MainActivity extends AppCompatActivity
 
         switch (item.getItemId()) {
             case R.id.action_exit:
-                Log.d(LOG_TAG, "debug button11");
                 System.exit(0);
                 break;
             case R.id.action_2players:
 
                 break;
             case R.id.action_1player:
-                Intent secondActivity = new Intent(this, SecondActivity.class);
+                Intent secondActivity = new Intent(this, PlayerVSDroidActivity.class);
                 startActivity(secondActivity);
                 break;
             case R.id.action_about:
@@ -179,7 +174,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * OnClick Listener for Grid field
-     * Control game flow
+     * Controller for game flow
      * @param v View item
      */
     @Override
@@ -188,7 +183,6 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.newGameButton: //start new Game
-                Log.d(LOG_TAG, "debug button11");
                 setCellGrid();
                 clearGrid();
                 return;
@@ -286,7 +280,7 @@ public class MainActivity extends AppCompatActivity
     private void setCellGrid(){
         count=0;
         player1=true;
-        status.setText("Player1 Move");
+        status.setText("Player 1 Move");
         field = new ArrayList<>();
         for (int i=0; i<CELL_AMOUNT; i++) {
             field.add(new Cell(i));
@@ -333,9 +327,9 @@ public class MainActivity extends AppCompatActivity
      */
     private void finishGame(){
         if(player1){
-            status.setText("Player2 Win!");
+            status.setText("Player 2 Win!");
         } else {
-            status.setText("Player1 Win!");
+            status.setText("Player 1 Win!");
         }
         for (Cell cell: field) {
             cell.setActive(true);
@@ -372,18 +366,16 @@ public class MainActivity extends AppCompatActivity
      */
     private void showPopUpWindow() {
         Log.d(LOG_TAG, "show popup");
-        LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater)
+                this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View popupView = layoutInflater.inflate(R.layout.pop_up, (ViewGroup) findViewById(R.id.pop_up));
+        View popupView = layoutInflater.inflate(R.layout.pop_up,
+                (ViewGroup) findViewById(R.id.pop_up));
 
         popupWindow = new PopupWindow(popupView,
                 LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
 
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-        //popupWindow.showAtLocation(this.findViewById(R.id.ScrollView01), Gravity.CENTER, 0, 0);
-
-        popupWindow .setTouchable(true);
-        popupWindow .setFocusable(true);
 
         Button btnDismiss = (Button)popupView.findViewById(R.id.dismiss);
 
