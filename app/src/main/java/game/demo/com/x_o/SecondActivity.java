@@ -11,9 +11,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -26,10 +26,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import game.demo.com.x_o.model.Cell;
 
-public class MainActivity extends AppCompatActivity
+public class SecondActivity extends AppCompatActivity
     implements OnClickListener {
 
     public static final String LOG_TAG="Log_Debug";
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity
     private List<Cell> field;
     private List<ImageView> imageList;
     private int count;
+    private final int resCross = getResources()
+                                .getIdentifier("cross", "drawable", getPackageName());
+    private final int resDroid = getResources()
+                                .getIdentifier("droid", "drawable", getPackageName());
 
     TextView status;
     PopupWindow popupWindow;
@@ -54,7 +59,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ImageView imView =(ImageView) findViewById(R.id.imageView2);
+        imView.setImageResource(resDroid);
+
         status = (TextView) findViewById(R.id.status);
+        status.setText("Player1 Move!");
 
         //setting onclick listener to layout
         setListeners();
@@ -128,7 +137,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        //menu.findItem(R.id.action_2players).setEnabled(false);
+        //menu.findItem(R.id.action_1player).setEnabled(false);
         return true;
     }
 
@@ -153,11 +162,11 @@ public class MainActivity extends AppCompatActivity
                 System.exit(0);
                 break;
             case R.id.action_2players:
-
+                Intent mainActivity = new Intent(this, MainActivity.class);
+                startActivity(mainActivity);
                 break;
             case R.id.action_1player:
-                Intent secondActivity = new Intent(this, SecondActivity.class);
-                startActivity(secondActivity);
+
                 break;
             case R.id.action_about:
                 showPopUpWindow();
@@ -257,26 +266,31 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
-        String imageName;
-        if (player1) {
-            imageName = "cross";
-            player1=false;
-            status.setText("Player 2 Move");
+        status.setText("Player 1 Move");
+
+        imView.setImageResource(resCross);
+
+        if(checkLines()){
+            finishGame();
+            status.setText("Player1 Win!");
+        } else if (count==9){
+            status.setText("Deuce!");
         } else {
-            imageName = "zero";
-            player1=true;
-            status.setText("Player 1 Move");
+            int random = (new Random()).nextInt(9);
+            Log.d(MainActivity.LOG_TAG, "random="+random);
+            while (!checkField(random)){
+                random = (new Random()).nextInt(9);
+            }
+            Log.d(MainActivity.LOG_TAG, "final random="+random);
+            prepareCell(random);
+            ImageView imViewDroid=imageList.get(random);
+            imViewDroid.setImageResource(resDroid);
+            count++;
         }
 
-        int res = getResources().getIdentifier(imageName, "drawable", getPackageName());
-        imView.setImageResource(res);
-
-        if(count>4){
-            if(checkLines()){
-                finishGame();
-            } else if (count==9){
-                status.setText("Deuce!");
-            }
+        if(checkLines()){
+            finishGame();
+            status.setText("Droid Win!");
         }
     }
 
@@ -300,11 +314,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void prepareCell(int number){
         field.get(number).setActive(true);
-        if(player1){
-            field.get(number).setValue(Cell.Value.CROSS);
-        } else {
-            field.get(number).setValue(Cell.Value.ZERO);
-        }
+        field.get(number).setValue(Cell.Value.CROSS);
     }
 
     /**
@@ -387,7 +397,7 @@ public class MainActivity extends AppCompatActivity
 
         Button btnDismiss = (Button)popupView.findViewById(R.id.dismiss);
 
-        btnDismiss.setOnClickListener(new Button.OnClickListener() {
+        btnDismiss.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
