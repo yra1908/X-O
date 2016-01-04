@@ -15,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,21 +32,11 @@ import game.demo.com.x_o.model.Cell;
 public class SecondActivity extends AppCompatActivity
     implements OnClickListener {
 
-    public static final String LOG_TAG="Log_Debug";
-
-    private static final String CELL_WIN_COLOR="#3F51B5";
-    private static final int CELL_AMOUNT=9;
-    private static int [][] lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6},
-                                     {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
-
-    private boolean player1;
     private List<Cell> field;
     private List<ImageView> imageList;
     private int count;
-    private final int resCross = getResources()
-                                .getIdentifier("cross", "drawable", getPackageName());
-    private final int resDroid = getResources()
-                                .getIdentifier("droid", "drawable", getPackageName());
+    private int resCross;
+    private int resDroid;
 
     TextView status;
     PopupWindow popupWindow;
@@ -60,6 +49,8 @@ public class SecondActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         ImageView imView =(ImageView) findViewById(R.id.imageView2);
+        resCross = getResources().getIdentifier("cross", "drawable", getPackageName());
+        resDroid = getResources().getIdentifier("droid", "drawable", getPackageName());
         imView.setImageResource(resDroid);
 
         status = (TextView) findViewById(R.id.status);
@@ -141,13 +132,6 @@ public class SecondActivity extends AppCompatActivity
         return true;
     }
 
-    /*@Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.sort_by_name).setChecked(true);
-        return true;
-    }*/
-
     /**
      * Onlick Listener fot menu items
      * @param item menu selected
@@ -158,7 +142,7 @@ public class SecondActivity extends AppCompatActivity
 
         switch (item.getItemId()) {
             case R.id.action_exit:
-                Log.d(LOG_TAG, "debug button11");
+                Log.d(MainActivity.LOG_TAG, "debug button11");
                 System.exit(0);
                 break;
             case R.id.action_2players:
@@ -197,7 +181,7 @@ public class SecondActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.newGameButton: //start new Game
-                Log.d(LOG_TAG, "debug button11");
+                Log.d(MainActivity.LOG_TAG, "debug button11");
                 setCellGrid();
                 clearGrid();
                 return;
@@ -205,63 +189,63 @@ public class SecondActivity extends AppCompatActivity
                 if(!checkField(0)){
                     return;
                 }
-                prepareCell(0);
+                prepareCellCross(0);
                 imView = imageList.get(0);
                 break;
             case R.id.cel2:
                 if(!checkField(1)){
                     return;
                 }
-                prepareCell(1);
+                prepareCellCross(1);
                 imView =imageList.get(1);
                 break;
             case R.id.cel3:
                 if(!checkField(2)){
                     return;
                 }
-                prepareCell(2);
+                prepareCellCross(2);
                 imView =imageList.get(2);
                 break;
             case R.id.cel4:
                 if(!checkField(3)){
                     return;
                 }
-                prepareCell(3);
+                prepareCellCross(3);
                 imView =imageList.get(3);
                 break;
             case R.id.cel5:
                 if(!checkField(4)){
                     return;
                 }
-                prepareCell(4);
+                prepareCellCross(4);
                 imView =imageList.get(4);
                 break;
             case R.id.cel6:
                 if(!checkField(5)){
                     return;
                 }
-                prepareCell(5);
+                prepareCellCross(5);
                 imView =imageList.get(5);
                 break;
             case R.id.cel7:
                 if(!checkField(6)){
                     return;
                 }
-                prepareCell(6);
+                prepareCellCross(6);
                 imView =imageList.get(6);
                 break;
             case R.id.cel8:
                 if(!checkField(7)){
                     return;
                 }
-                prepareCell(7);
+                prepareCellCross(7);
                 imView =imageList.get(7);
                 break;
             case R.id.cel9:
                 if(!checkField(8)){
                     return;
                 }
-                prepareCell(8);
+                prepareCellCross(8);
                 imView =imageList.get(8);
                 break;
         }
@@ -273,17 +257,35 @@ public class SecondActivity extends AppCompatActivity
         if(checkLines()){
             finishGame();
             status.setText("Player1 Win!");
+            return;
         } else if (count==9){
             status.setText("Deuce!");
         } else {
-            int random = (new Random()).nextInt(9);
-            Log.d(MainActivity.LOG_TAG, "random="+random);
-            while (!checkField(random)){
-                random = (new Random()).nextInt(9);
+
+            int number;
+
+            Log.d(MainActivity.LOG_TAG, "attack return"+attackStrategy());
+            Log.d(MainActivity.LOG_TAG, "defence return="+defenceStrategy());
+
+            if(attackStrategy()!=-1){
+                number = attackStrategy();
+                Log.d(MainActivity.LOG_TAG, "attack="+number);
+            } else if(defenceStrategy()!=-1){
+                number = defenceStrategy();
+                Log.d(MainActivity.LOG_TAG, "defence="+number);
+            } else {
+                number = new Random().nextInt(8);
             }
-            Log.d(MainActivity.LOG_TAG, "final random="+random);
-            prepareCell(random);
-            ImageView imViewDroid=imageList.get(random);
+
+            Log.d(MainActivity.LOG_TAG, "random="+number);
+
+            while (!checkField(number)){
+                number = new Random().nextInt(8);
+                Log.d(MainActivity.LOG_TAG, "random="+number);
+            }
+            Log.d(MainActivity.LOG_TAG, "final random="+number);
+            prepareCellDroid(number);
+            ImageView imViewDroid=imageList.get(number);
             imViewDroid.setImageResource(resDroid);
             count++;
         }
@@ -299,10 +301,9 @@ public class SecondActivity extends AppCompatActivity
      */
     private void setCellGrid(){
         count=0;
-        player1=true;
         status.setText("Player1 Move");
         field = new ArrayList<>();
-        for (int i=0; i<CELL_AMOUNT; i++) {
+        for (int i=0; i< MainActivity.CELL_AMOUNT; i++) {
             field.add(new Cell(i));
         }
 
@@ -312,9 +313,13 @@ public class SecondActivity extends AppCompatActivity
      * Fill Cell after it was selected
      * @param number
      */
-    private void prepareCell(int number){
+    private void prepareCellCross(int number){
         field.get(number).setActive(true);
         field.get(number).setValue(Cell.Value.CROSS);
+    }
+    private void prepareCellDroid(int number){
+        field.get(number).setActive(true);
+        field.get(number).setValue(Cell.Value.ZERO);
     }
 
     /**
@@ -323,13 +328,13 @@ public class SecondActivity extends AppCompatActivity
      */
     private boolean checkLines(){
 
-        for (int[] line : lines) {
+        for (int[] line : MainActivity.lines) {
 
             if (field.get(line[0]).equals(field.get(line[1])) &&
                     field.get(line[0]).equals(field.get(line[2])) &&
                     !field.get(line[0]).getValue().equals(Cell.Value.NONE)){
                 for (int index: line) {
-                    imageList.get(index).setBackgroundColor(Color.parseColor(CELL_WIN_COLOR));
+                    imageList.get(index).setBackgroundColor(Color.parseColor(MainActivity.CELL_WIN_COLOR));
                 }
                 return true;
             }
@@ -337,16 +342,73 @@ public class SecondActivity extends AppCompatActivity
         return false;
     }
 
+    private int defenceStrategy(){
+
+        int loop=0;
+
+        for (int[] line : MainActivity.lines) {
+            if(Cell.Value.CROSS.equals(field.get(line[0]).getValue())){
+                if(Cell.Value.CROSS.equals(field.get(line[1]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][2]);
+                    return MainActivity.lines[loop][2];
+                }
+            }
+
+            if(Cell.Value.CROSS.equals(field.get(line[1]).getValue())){
+                if(Cell.Value.CROSS.equals(field.get(line[2]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][0]);
+                    return MainActivity.lines[loop][0];
+                }
+            }
+
+            if(Cell.Value.CROSS.equals(field.get(line[0]).getValue())){
+                if(Cell.Value.CROSS.equals(field.get(line[2]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "def" + MainActivity.lines[loop][1]);
+                    return MainActivity.lines[loop][1];
+                }
+            }
+            loop++;
+        }
+
+        return -1;
+    }
+
+    private int attackStrategy(){
+
+        int loop=0;
+
+        for (int[] line : MainActivity.lines) {
+
+            if(Cell.Value.ZERO.equals(field.get(line[0]).getValue())){
+                if(Cell.Value.ZERO.equals(field.get(line[1]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][2]);
+                    return MainActivity.lines[loop][2];
+                }
+            }
+
+            if(Cell.Value.ZERO.equals(field.get(line[1]).getValue())){
+                if(Cell.Value.ZERO.equals(field.get(line[2]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][0]);
+                    return MainActivity.lines[loop][0];
+                }
+            }
+
+            if(Cell.Value.ZERO.equals(field.get(line[0]).getValue())){
+                if(Cell.Value.ZERO.equals(field.get(line[2]).getValue())){
+                    Log.d(MainActivity.LOG_TAG, "att" + MainActivity.lines[loop][1]);
+                    return MainActivity.lines[loop][1];
+                }
+            }
+            loop++;
+        }
+        return -1;
+    }
+
     /**
      * Finish game. Setting status message
      * Blocking cells from filing until new Game starts
      */
     private void finishGame(){
-        if(player1){
-            status.setText("Player2 Win!");
-        } else {
-            status.setText("Player1 Win!");
-        }
         for (Cell cell: field) {
             cell.setActive(true);
         }
@@ -381,19 +443,20 @@ public class SecondActivity extends AppCompatActivity
      * Show PopUp window with info about application
      */
     private void showPopUpWindow() {
-        Log.d(LOG_TAG, "show popup");
+        Log.d(MainActivity.LOG_TAG, "show popup");
         LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View popupView = layoutInflater.inflate(R.layout.pop_up, (ViewGroup) findViewById(R.id.pop_up));
+        View popupView = layoutInflater.inflate(R.layout.pop_up, null);
 
         popupWindow = new PopupWindow(popupView,
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-        //popupWindow.showAtLocation(this.findViewById(R.id.ScrollView01), Gravity.CENTER, 0, 0);
+        //popupWindow.showAtLocation
+        // (this.findViewById(R.id.ScrollView01), Gravity.CENTER, 0, 0);
 
-        popupWindow .setTouchable(true);
-        popupWindow .setFocusable(true);
+        //popupWindow .setTouchable(true);
+        //popupWindow .setFocusable(true);
 
         Button btnDismiss = (Button)popupView.findViewById(R.id.dismiss);
 

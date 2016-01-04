@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity
 
     public static final String LOG_TAG="Log_Debug";
 
-    private static final String CELL_WIN_COLOR="#3F51B5";
-    private static final int CELL_AMOUNT=9;
-    private static int [][] lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6},
+    static final String CELL_WIN_COLOR="#3F51B5";
+    static final int CELL_AMOUNT=9;
+    static int [][] lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6},
                                      {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
 
     private boolean player1;
@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity
         View popupView = layoutInflater.inflate(R.layout.pop_up, (ViewGroup) findViewById(R.id.pop_up));
 
         popupWindow = new PopupWindow(popupView,
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
 
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
         //popupWindow.showAtLocation(this.findViewById(R.id.ScrollView01), Gravity.CENTER, 0, 0);
