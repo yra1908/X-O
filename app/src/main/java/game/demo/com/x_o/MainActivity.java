@@ -1,5 +1,7 @@
 package game.demo.com.x_o;
 
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -27,12 +29,14 @@ public class MainActivity extends AppCompatActivity
 
     public static final String LOG_TAG="Log_Debug";
 
+    private static final String CELL_WIN_COLOR="#3F51B5";
     private static final int CELL_AMOUNT=9;
     private static int [][] lines = {{0,1,2}, {3,4,5}, {6,7,8}, {0,3,6},
                                      {1,4,7}, {2,5,8}, {0,4,8}, {2,4,6}};
 
     private boolean player1;
     private List<Cell> field;
+    private List<ImageView> imageList;
     private int count;
 
     TextView status;
@@ -48,6 +52,9 @@ public class MainActivity extends AppCompatActivity
 
         //setting onclick listener to layout
         setListeners();
+
+        //add image Views to List
+        fillImageViewList();
 
         //Setting cell params
         setCellGrid();
@@ -80,6 +87,26 @@ public class MainActivity extends AppCompatActivity
         cel9.setOnClickListener(this);
     }
 
+    private void fillImageViewList(){
+        ImageView imView1 =(ImageView) findViewById(R.id.imgCel1);
+        ImageView imView2 =(ImageView) findViewById(R.id.imgCel2);
+        ImageView imView3 =(ImageView) findViewById(R.id.imgCel3);
+        ImageView imView4 =(ImageView) findViewById(R.id.imgCel4);
+        ImageView imView5 =(ImageView) findViewById(R.id.imgCel5);
+        ImageView imView6 =(ImageView) findViewById(R.id.imgCel6);
+        ImageView imView7 =(ImageView) findViewById(R.id.imgCel7);
+        ImageView imView8 =(ImageView) findViewById(R.id.imgCel8);
+        ImageView imView9 =(ImageView) findViewById(R.id.imgCel9);
+
+        imageList = new ArrayList<>();
+
+        imageList.add(imView1);     imageList.add(imView2);
+        imageList.add(imView3);     imageList.add(imView4);
+        imageList.add(imView5);     imageList.add(imView6);
+        imageList.add(imView7);     imageList.add(imView8);
+        imageList.add(imView9);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -88,12 +115,34 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_exit) {
-            System.exit(0);
-        }
 
+        switch (item.getItemId()) {
+            case R.id.action_exit:
+                Log.d(LOG_TAG, "debug button11");
+                System.exit(0);
+                break;
+            case R.id.action_2players:
+
+                break;
+            case R.id.action_1player:
+
+                break;
+            case R.id.action_about:
+
+                break;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Method for saving data when device orientation changes
+     * and setting Screen orientation - Portrait
+     * @param newConfig
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override
@@ -111,63 +160,63 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
                 prepareCell(0);
-                imView =(ImageView) findViewById(R.id.imgCel1);
+                imView = imageList.get(0);
                 break;
             case R.id.cel2:
                 if(!checkField(1)){
                     return;
                 }
                 prepareCell(1);
-                imView =(ImageView) findViewById(R.id.imgCel2);
+                imView =imageList.get(1);
                 break;
             case R.id.cel3:
                 if(!checkField(2)){
                     return;
                 }
                 prepareCell(2);
-                imView =(ImageView) findViewById(R.id.imgCel3);
+                imView =imageList.get(2);;
                 break;
             case R.id.cel4:
                 if(!checkField(3)){
                     return;
                 }
                 prepareCell(3);
-                imView =(ImageView) findViewById(R.id.imgCel4);
+                imView =imageList.get(3);;
                 break;
             case R.id.cel5:
                 if(!checkField(4)){
                     return;
                 }
                 prepareCell(4);
-                imView =(ImageView) findViewById(R.id.imgCel5);
+                imView =imageList.get(4);;
                 break;
             case R.id.cel6:
                 if(!checkField(5)){
                     return;
                 }
                 prepareCell(5);
-                imView =(ImageView) findViewById(R.id.imgCel6);
+                imView =imageList.get(5);;
                 break;
             case R.id.cel7:
                 if(!checkField(6)){
                     return;
                 }
                 prepareCell(6);
-                imView =(ImageView) findViewById(R.id.imgCel7);
+                imView =imageList.get(6);;
                 break;
             case R.id.cel8:
                 if(!checkField(7)){
                     return;
                 }
                 prepareCell(7);
-                imView =(ImageView) findViewById(R.id.imgCel8);
+                imView =imageList.get(7);;
                 break;
             case R.id.cel9:
                 if(!checkField(8)){
                     return;
                 }
                 prepareCell(8);
-                imView =(ImageView) findViewById(R.id.imgCel9);
+                imView =imageList.get(8);;
                 break;
         }
 
@@ -183,11 +232,13 @@ public class MainActivity extends AppCompatActivity
         }
 
         int res = getResources().getIdentifier(imageName, "drawable", getPackageName());
-
         imView.setImageResource(res);
+
         if(count>4){
             if(checkLines()){
                 finishGame();
+            } else if (count==9){
+                status.setText("Deuce!");
             }
         }
     }
@@ -214,24 +265,18 @@ public class MainActivity extends AppCompatActivity
 
     private boolean checkLines(){
 
-        int lineNumber = 1;
-        for (int[] line: lines) {
+        for (int[] line : lines) {
 
             if (field.get(line[0]).equals(field.get(line[1])) &&
                     field.get(line[0]).equals(field.get(line[2])) &&
                     !field.get(line[0]).getValue().equals(Cell.Value.NONE)){
-
-                setLineBackground(lineNumber);
+                for (int index: line) {
+                    imageList.get(index).setBackgroundColor(Color.parseColor(CELL_WIN_COLOR));
+                }
                 return true;
             }
-            lineNumber++;
         }
         return false;
-    }
-
-    private void setLineBackground(int i) {
-        ImageView imView1 =(ImageView) findViewById(R.id.imgCel1);
-        imView1.setBackgroundColor(Color.parseColor("#3F51B5"));
     }
 
     private void finishGame(){
@@ -247,9 +292,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
-
     private boolean checkField(int number){
         if(field.get(number).isActive()){
             Toast.makeText(this, "Field is already filled", Toast.LENGTH_SHORT).show();
@@ -260,26 +302,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void clearGrid(){
-        ImageView imView1 =(ImageView) findViewById(R.id.imgCel1);
-        ImageView imView2 =(ImageView) findViewById(R.id.imgCel2);
-        ImageView imView3 =(ImageView) findViewById(R.id.imgCel3);
-        ImageView imView4 =(ImageView) findViewById(R.id.imgCel4);
-        ImageView imView5 =(ImageView) findViewById(R.id.imgCel5);
-        ImageView imView6 =(ImageView) findViewById(R.id.imgCel6);
-        ImageView imView7 =(ImageView) findViewById(R.id.imgCel7);
-        ImageView imView8 =(ImageView) findViewById(R.id.imgCel8);
-        ImageView imView9 =(ImageView) findViewById(R.id.imgCel9);
 
-        imView1.setImageDrawable(null);
-        imView2.setImageDrawable(null);
-        imView3.setImageDrawable(null);
-        imView4.setImageDrawable(null);
-        imView5.setImageDrawable(null);
-        imView6.setImageDrawable(null);
-        imView7.setImageDrawable(null);
-        imView8.setImageDrawable(null);
-        imView9.setImageDrawable(null);
+        for (ImageView view: imageList) {
+            view.setImageDrawable(null);
+            view.setBackgroundColor(Color.TRANSPARENT);
+        }
 
-        imView1.setBackgroundColor(Color.TRANSPARENT);
     }
+
 }

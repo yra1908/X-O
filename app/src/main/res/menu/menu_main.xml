@@ -3,6 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
+        android:id="@+id/action_2players"
+        android:orderInCategory="100"
+        android:title="@string/action_2player"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_1player"
+        android:orderInCategory="100"
+        android:title="@string/action_1player"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="100"
+        android:title="@string/action_about"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_exit"
         android:orderInCategory="100"
         android:title="@string/action_exit"
